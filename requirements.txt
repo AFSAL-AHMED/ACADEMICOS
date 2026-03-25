@@ -1,0 +1,7 @@
+streamlit
+ollama
+mcp
+pypdf
+python-dotenv
+requests
+notion-client

@@ -1,0 +1,15 @@
+# CS 101: Introduction to AI and Machine Learning
+Prof. Sarah Connor
+Spring 2026
+
+## Course Overview
+In this course we will learn the basics of artificial intelligence.
+
+## Important Dates
+- Quiz 1: 2026-03-25
+- Midterm Project Due: 2026-04-10
+- Final Exam: 2026-05-15
+
+## Reading Assignments
+- Read Chapter 1 and 2 by 2026-03-20
+- Read Chapter 3 by 2026-04-05

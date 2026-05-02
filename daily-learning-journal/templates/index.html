@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📖 Daily Learning Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f18;
+      --card:     #13162a;
+      --card2:    #1a1f38;
+      --border:   #ffffff12;
+      --accent:   #6c63ff;
+      --accent2:  #a78bfa;
+      --green:    #22d3a5;
+      --yellow:   #fbbf24;
+      --red:      #f87171;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --radius:   14px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,15,24,.85);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+    .nav-brand span { color: var(--accent2); }
+    .nav-tabs { display: flex; gap: .3rem; }
+    .tab-btn {
+      background: transparent; border: none; color: var(--muted);
+      padding: .45rem 1rem; border-radius: 8px; cursor: pointer;
+      font-size: .88rem; font-weight: 500; transition: all .2s;
+    }
+    .tab-btn.active, .tab-btn:hover { background: var(--card2); color: var(--text); }
+    .tab-btn.active { color: var(--accent2); }
+
+    /* ── layout ── */
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* ── stats bar ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem;
+      display: flex; flex-direction: column; gap: .3rem;
+    }
+    .stat-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-value.purple { color: var(--accent2); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.yellow { color: var(--yellow); }
+    .stat-value.white  { color: var(--text); }
+
+    /* ── sections ── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ── form ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+    }
+    .form-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .5rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: .82rem; color: var(--muted); font-weight: 500; }
+    input, select, textarea {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: .65rem .9rem;
+      font-size: .92rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+    select option { background: #1a1f38; }
+
+    /* mood pills */
+    .mood-group { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .mood-pill {
+      padding: .4rem .9rem; border-radius: 99px;
+      border: 1px solid var(--border);
+      cursor: pointer; font-size: .83rem; font-weight: 500;
+      background: var(--card2); color: var(--muted);
+      transition: all .18s; user-select: none;
+    }
+    .mood-pill:hover { border-color: var(--accent); color: var(--text); }
+    .mood-pill.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .btn-submit {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: .85rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 10px;
+      color: #fff; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: opacity .2s, transform .15s;
+    }
+    .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── toast ── */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem;
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 10px; padding: .9rem 1.4rem;
+      font-size: .9rem; font-weight: 500;
+      opacity: 0; transform: translateY(12px);
+      transition: all .3s; pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error   { border-color: var(--red);   color: var(--red);   }
+
+    /* ── log cards ── */
+    .logs-list { display: flex; flex-direction: column; gap: 1rem; }
+    .log-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.5rem;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+    }
+    .log-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .log-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .7rem; }
+    .log-title  { font-weight: 600; font-size: 1rem; }
+    .log-date   { font-size: .78rem; color: var(--muted); }
+    .log-meta   { display: flex; gap: .6rem; flex-wrap: wrap; }
+    .badge {
+      padding: .25rem .65rem; border-radius: 99px;
+      font-size: .75rem; font-weight: 600;
+      background: var(--card2); border: 1px solid var(--border);
+    }
+    .badge.topic  { color: var(--accent2); border-color: var(--accent2)44; }
+    .badge.hours  { color: var(--green);   border-color: var(--green)44; }
+    .badge.mood   { color: var(--yellow);  border-color: var(--yellow)44; }
+    .badge.streak { color: var(--red);     border-color: var(--red)44; }
+    .log-body { margin-top: .9rem; display: none; border-top: 1px solid var(--border); padding-top: .9rem; }
+    .log-body.open { display: block; }
+    .log-field { margin-bottom: .6rem; }
+    .log-field-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .2rem; }
+    .log-field-value { font-size: .9rem; line-height: 1.5; }
+
+    /* ── topics chart ── */
+    .topics-chart { display: flex; flex-direction: column; gap: .7rem; margin-top: 1rem; }
+    .topic-bar-row { display: flex; align-items: center; gap: .8rem; }
+    .topic-bar-label { font-size: .83rem; width: 120px; flex-shrink: 0; }
+    .topic-bar-track { flex: 1; background: var(--card2); border-radius: 99px; height: 8px; overflow: hidden; }
+    .topic-bar-fill  { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .8s ease; }
+    .topic-bar-count { font-size: .78rem; color: var(--muted); width: 40px; text-align: right; }
+
+    .empty { text-align: center; color: var(--muted); padding: 3rem; font-size: .95rem; }
+
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid  { grid-template-columns: 1fr; }
+      nav { padding: 1rem; }
+      .nav-tabs .tab-btn { padding: .4rem .6rem; font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">📖 <span>Daily Learning</span> Journal</div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('log')">Add Log</button>
+    <button class="tab-btn" onclick="showTab('history')">History</button>
+    <button class="tab-btn" onclick="showTab('stats')">Stats</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Stats Bar (always visible) -->
+  <div class="stats-grid" id="statsBar">
+    <div class="stat-card">
+      <span class="stat-label">Days Logged</span>
+      <span class="stat-value purple" id="s-days">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Total Hours</span>
+      <span class="stat-value green" id="s-hours">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Best Streak</span>
+      <span class="stat-value yellow" id="s-streak">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Today</span>
+      <span class="stat-value white" id="s-today" style="font-size:1rem;padding-top:.4rem;">{{ today }}</span>
+    </div>
+  </div>
+
+  <!-- ADD LOG SECTION -->
+  <div class="section active" id="sec-log">
+    <div class="form-card">
+      <div class="form-title">✍️ Log Today's Learning</div>
+      <form id="logForm">
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label>Day Title</label>
+            <input type="text" id="f-title" placeholder="e.g. Day 2 — Python OOP" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="f-date" value="{{ today }}"/>
+          </div>
+
+          <div class="form-group">
+            <label>Streak Day #</label>
+            <input type="number" id="f-streak" value="1" min="1"/>
+          </div>
+
+          <div class="form-group">
+            <label>Topic</label>
+            <select id="f-topic">
+              <option>Programming</option>
+              <option>AI / ML</option>
+              <option>Web Dev</option>
+              <option>Math / DSA</option>
+              <option>DevOps</option>
+              <option>Reading</option>
+              <option>Soft Skills</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Hours Spent</label>
+            <input type="number" id="f-hours" value="1" min="0.5" step="0.5"/>
+          </div>
+
+          <div class="form-group full">
+            <label>Mood</label>
+            <div class="mood-group">
+              <div class="mood-pill" data-mood="Fired Up">🔥 Fired Up</div>
+              <div class="mood-pill selected" data-mood="Good">😊 Good</div>
+              <div class="mood-pill" data-mood="Okay">😐 Okay</div>
+              <div class="mood-pill" data-mood="Tired">😴 Tired</div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label>Key Takeaways</label>
+            <textarea id="f-takeaways" placeholder="What did you actually learn today?"></textarea>
+          </div>
+
+          <div class="form-group full">
+            <label>Resources Used</label>
+            <input type="text" id="f-resources" placeholder="Books, videos, links..."/>
+          </div>
+
+          <div class="form-group full">
+            <label>Tomorrow's Goal</label>
+            <input type="text" id="f-tmr" placeholder="What will you study tomorrow?"/>
+          </div>
+
+        </div>
+        <button type="submit" class="btn-submit" id="submitBtn">💾 Save to Notion</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- HISTORY SECTION -->
+  <div class="section" id="sec-history">
+    <div id="logsList" class="logs-list">
+      <div class="empty">Loading logs...</div>
+    </div>
+  </div>
+
+  <!-- STATS SECTION -->
+  <div class="section" id="sec-stats">
+    <div class="form-card">
+      <div class="form-title">📊 Learning Stats</div>
+      <div id="statsDetail"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── tab switching ──────────────────────────────────────────────────────────
+  function showTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'history') loadLogs();
+    if (name === 'stats')   loadStatsDetail();
+  }
+
+  // ── toast ──────────────────────────────────────────────────────────────────
+  function toast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  // ── mood pills ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('.mood-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.mood-pill').forEach(p => p.classList.remove('selected'));
+      pill.classList.add('selected');
+    });
+  });
+
+  function getSelectedMood() {
+    const sel = document.querySelector('.mood-pill.selected');
+    return sel ? sel.dataset.mood : 'Good';
+  }
+
+  // ── form submit ────────────────────────────────────────────────────────────
+  document.getElementById('logForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    const payload = {
+      day_title:      document.getElementById('f-title').value,
+      log_date:       document.getElementById('f-date').value,
+      topic:          document.getElementById('f-topic').value,
+      hours_spent:    parseFloat(document.getElementById('f-hours').value),
+      mood:           getSelectedMood(),
+      key_takeaways:  document.getElementById('f-takeaways').value,
+      resources_used: document.getElementById('f-resources').value,
+      tomorrows_goal: document.getElementById('f-tmr').value,
+      streak_day:     parseInt(document.getElementById('f-streak').value),
+    };
+
+    try {
+      const res  = await fetch('/api/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast('✅ Log saved to Notion!', 'success');
+        document.getElementById('logForm').reset();
+        document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+        document.querySelectorAll('.mood-pill').forEach(p => p.classList.remove('selected'));
+        document.querySelector('[data-mood="Good"]').classList.add('selected');
+        loadStats();
+      } else {
+        toast('❌ ' + data.message, 'error');
+      }
+    } catch (err) {
+      toast('❌ Connection error', 'error');
+    }
+
+    btn.disabled = false;
+    btn.textContent = '💾 Save to Notion';
+  });
+
+  // ── load stats bar ─────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const res  = await fetch('/api/stats');
+      const data = await res.json();
+      document.getElementById('s-days').textContent   = data.total_days   ?? '—';
+      document.getElementById('s-hours').textContent  = (data.total_hours ?? '—') + 'h';
+      document.getElementById('s-streak').textContent = '#' + (data.max_streak ?? '—');
+    } catch (e) {}
+  }
+
+  // ── load history ───────────────────────────────────────────────────────────
+  async function loadLogs() {
+    const container = document.getElementById('logsList');
+    container.innerHTML = '<div class="empty">Loading...</div>';
+    try {
+      const res   = await fetch('/api/logs?limit=20');
+      const logs  = await res.json();
+      if (!logs.length) {
+        container.innerHTML = '<div class="empty">No logs yet. Start logging today!</div>';
+        return;
+      }
+      container.innerHTML = logs.map(log => `
+        <div class="log-card" onclick="toggleLog(this)">
+          <div class="log-header">
+            <div class="log-title">${log.day || 'Untitled'}</div>
+            <div class="log-date">${log.date}</div>
+          </div>
+          <div class="log-meta">
+            <span class="badge topic">${log.topic}</span>
+            <span class="badge hours">⏱ ${log.hours}h</span>
+            <span class="badge mood">${log.mood}</span>
+            <span class="badge streak">🔥 Day #${log.streak}</span>
+          </div>
+          <div class="log-body">
+            ${log.takeaways ? `<div class="log-field"><div class="log-field-label">Key Takeaways</div><div class="log-field-value">${log.takeaways}</div></div>` : ''}
+            ${log.resources ? `<div class="log-field"><div class="log-field-label">Resources Used</div><div class="log-field-value">${log.resources}</div></div>` : ''}
+            ${log.tomorrows_goal ? `<div class="log-field"><div class="log-field-label">Tomorrow's Goal</div><div class="log-field-value">${log.tomorrows_goal}</div></div>` : ''}
+            <div style="margin-top:.8rem"><a href="${log.url}" target="_blank" style="color:var(--accent2);font-size:.82rem;">Open in Notion →</a></div>
+          </div>
+        </div>
+      `).join('');
+    } catch (e) {
+      container.innerHTML = '<div class="empty">Error loading logs.</div>';
+    }
+  }
+
+  function toggleLog(card) {
+    card.querySelector('.log-body').classList.toggle('open');
+  }
+
+  // ── load stats detail ──────────────────────────────────────────────────────
+  async function loadStatsDetail() {
+    const container = document.getElementById('statsDetail');
+    try {
+      const res  = await fetch('/api/stats');
+      const data = await res.json();
+      const topics  = data.topics || {};
+      const maxVal  = Math.max(...Object.values(topics), 1);
+      const topicBars = Object.entries(topics)
+        .sort((a, b) => b[1] - a[1])
+        .map(([t, c]) => `
+          <div class="topic-bar-row">
+            <div class="topic-bar-label">${t}</div>
+            <div class="topic-bar-track">
+              <div class="topic-bar-fill" style="width:${(c/maxVal*100).toFixed(0)}%"></div>
+            </div>
+            <div class="topic-bar-count">${c}d</div>
+          </div>
+        `).join('');
+
+      container.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="text-align:center;">
+            <div style="font-size:2.5rem;font-weight:800;color:var(--accent2);">${data.total_days}</div>
+            <div style="color:var(--muted);font-size:.82rem;">Days Logged</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:2.5rem;font-weight:800;color:var(--green);">${data.total_hours}h</div>
+            <div style="color:var(--muted);font-size:.82rem;">Total Hours</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:2.5rem;font-weight:800;color:var(--yellow);">#${data.max_streak}</div>
+            <div style="color:var(--muted);font-size:.82rem;">Best Streak</div>
+          </div>
+        </div>
+        <div style="font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.8rem;">Topics Breakdown</div>
+        <div class="topics-chart">${topicBars || '<div class="empty">No data yet</div>'}</div>
+      `;
+    } catch (e) {
+      container.innerHTML = '<div class="empty">Error loading stats.</div>';
+    }
+  }
+
+  // ── init ───────────────────────────────────────────────────────────────────
+  loadStats();
+</script>
+</body>
+</html>

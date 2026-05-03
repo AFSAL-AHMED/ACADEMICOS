@@ -1,0 +1,102 @@
+LECTURE NOTES — DATA STRUCTURES & ALGORITHMS
+Module 3: Sorting Algorithms
+Date: March 2026
+Professor: Dr. Smith
+
+========================================
+TOPIC 1: BUBBLE SORT
+========================================
+
+Bubble Sort is the simplest sorting algorithm. It works by repeatedly
+comparing adjacent elements and swapping them if they are in the wrong order.
+
+How it works:
+- Compare element at index i with element at index i+1
+- If arr[i] > arr[i+1], swap them
+- Repeat this for every pass through the array
+- After each pass, the largest unsorted element "bubbles up" to its correct position
+
+Time Complexity:
+  - Best Case:  O(n)    — already sorted array
+  - Worst Case: O(n²)   — reverse sorted array
+  - Average:    O(n²)
+
+Space Complexity: O(1) — in-place sorting (no extra memory)
+
+Stability: Stable (equal elements maintain their relative order)
+
+When to use: Only for small datasets or nearly-sorted data. NEVER use in production.
+
+========================================
+TOPIC 2: MERGE SORT
+========================================
+
+Merge Sort uses the Divide and Conquer strategy. It splits the array into
+halves, recursively sorts each half, then merges them back together.
+
+Steps:
+  1. Divide: Split array into two halves
+  2. Conquer: Recursively sort both halves
+  3. Merge: Merge the two sorted halves into one sorted array
+
+Key insight: Merging two sorted arrays is easy — just compare the front
+elements of each and take the smaller one.
+
+Time Complexity:
+  - Best, Worst, Average: O(n log n)  — always the same!
+
+Space Complexity: O(n) — requires extra array for merging
+
+Stability: Stable
+
+When to use: Large datasets, linked lists, external sorting (data on disk).
+             Best general-purpose sorting algorithm for most cases.
+
+========================================
+TOPIC 3: QUICK SORT
+========================================
+
+Quick Sort also uses Divide and Conquer. It picks a "pivot" element and
+partitions the array so that all elements smaller than pivot are on the left,
+and all larger elements are on the right.
+
+Steps:
+  1. Pick a pivot (commonly first, last, or random element)
+  2. Partition: Rearrange array around pivot
+  3. Recursively sort left and right partitions
+
+Time Complexity:
+  - Best/Average: O(n log n)
+  - Worst Case: O(n²)  — if pivot is always smallest/largest (bad partitioning)
+
+Space Complexity: O(log n) average (recursion stack)
+
+Stability: NOT stable
+
+When to use: In practice, one of the fastest algorithms. Used in most standard
+             library sort() implementations (with improvements like 3-way pivot).
+
+Tip: Random pivot selection avoids worst-case behavior.
+
+========================================
+COMPARISON SUMMARY TABLE
+========================================
+
+| Algorithm    | Best     | Average  | Worst    | Space  | Stable |
+|--------------|----------|----------|----------|--------|--------|
+| Bubble Sort  | O(n)     | O(n²)    | O(n²)    | O(1)   | Yes    |
+| Merge Sort   | O(nlogn) | O(nlogn) | O(nlogn) | O(n)   | Yes    |
+| Quick Sort   | O(nlogn) | O(nlogn) | O(n²)    | O(logn)| No     |
+
+========================================
+KEY EXAM POINTS
+========================================
+
+1. Merge Sort guarantees O(n log n) — use when worst-case matters
+2. Quick Sort is fastest in practice due to cache efficiency
+3. Bubble Sort is only educational — avoid in real applications
+4. Stability matters when sorting objects with multiple fields
+5. Divide and Conquer = split, solve, combine
+
+Next Lecture: Heap Sort and Counting Sort
+Assignment Due: Implement Merge Sort from scratch — due April 5th
